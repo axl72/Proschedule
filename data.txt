@@ -1,0 +1,13 @@
+corpo;empresa;puesto
+Ricardo V.;Maria Gracia;senior
+Betsy;Sandra W.;senior
+Marco;Daniela L.;senior
+Linette L.;Martin G.;junior
+;Angeline H.
+;Claudia G.
+;Lorena
+;Alejadnra T.
+;Nicole
+;Madelaine
+;Alonso
+;Diego
