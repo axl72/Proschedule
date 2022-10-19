@@ -9,6 +9,9 @@ def generate_schedule():
     month = datetime.datetime.now().strftime("%B")
     calendar = get_current_calendar_dict()
 
+    def is_hollyday(
+        day): return day in calendar["sabado"] or day in calendar["domingo"]
+
     days_to_work = get_count_work_days(calendar)
     days_to_work = calculate_days_to_works(days_to_work)
 
@@ -25,14 +28,38 @@ def generate_schedule():
 
     print(workers_dict)
     result = list()
+    list_workers = generate_workers_of_the_day(workers_dict, days_to_work)
+
+    print(len(list_workers))
+
     for day in month_days:
-        worker = get_worker_of_the_day(workers_dict, days_to_work)
-        worker2 = get_worker_of_the_day(workers_dict, days_to_work)
-        worker3 = get_worker_of_the_day(workers_dict, days_to_work)
-        if day in calendar["sabado"] or day in calendar["domingo"]:
+        if is_hollyday(day):
             result.append([f"{day}-{month[:3]}", "", "", ""])
             continue
-        result.append([f"{day}-{month[:3]}", worker, worker2, worker3])
+        worker = list_workers.pop()
+
+        result.append([f"{day}-{month[:3]}", worker])
+
+    for row in result:
+        if row[1] == '':
+            continue
+        worker = list_workers.pop()
+        contador = 0
+        while workers_dict[worker][-1] == "junior" and contador < 10:
+            list_workers.append(worker)
+            random.shuffle(list_workers)
+            worker = list_workers.pop()
+            contador += 1
+
+        row.append(worker)
+
+    for row in result:
+        if row[1] == '':
+            continue
+
+        worker = list_workers.pop()
+
+        row.append(worker)
 
     return result
 

@@ -50,17 +50,16 @@ def calculate_days_to_works(num_days):
     return {"senior": senior, "junior": junior}
 
 
-def get_worker_of_the_day(workers_dict, days_to_work):
+def generate_workers_of_the_day(workers_dict, days_to_work):
     workers = list(workers_dict.keys())
     aux = []
     for worker in workers:
         type_work = workers_dict[worker][-1]
-        num_days = days_to_work[type_work] - workers_dict[worker][0]
-        print(num_days)
+        num_days = days_to_work[type_work]
         aux.extend([worker]*num_days)
         random.shuffle(aux)
     workers = aux
-
+    return workers
     worker_of_the_day = workers.pop(random.randint(0, len(workers) - 1))
     workers_dict[worker_of_the_day][0] += 1
     return worker_of_the_day
