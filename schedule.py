@@ -4,6 +4,7 @@ from util import *
 
 
 def generate_schedule():
+    """Esta función genera un lista de lista que representa el contenido del excel"""
     month_days = [day for row in get_current_calendar()
                   for day in row if day != 0]
     month = datetime.datetime.now().strftime("%B")
@@ -26,11 +27,10 @@ def generate_schedule():
     workers_dict = {k: [v, x] for (k, v, x) in zip(
         workers_name, [0]*len(workers), column(-1))}
 
-    print(workers_dict)
     result = list()
     list_workers = generate_workers_of_the_day(workers_dict, days_to_work)
 
-    print(len(list_workers))
+    # El siguiente código debe ser almacenado en una funcón y reorganizado
 
     for day in month_days:
         if is_hollyday(day):

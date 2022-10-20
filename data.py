@@ -2,6 +2,7 @@ import csv
 
 
 def read_data(filename):
+    """Retorna una lista de listas con todo el contenido del csv"""
     with open(filename, 'r') as csvfile:
         csvreader = csv.reader(csvfile)
         fields = next(csvreader)
