@@ -1,73 +1,141 @@
 import datetime
-import data
-from util import *
+from pyclbr import Function
+from worker import *
+from util import get_current_calendar_dict, get_current_calendar, get_feriados, listas_diferentes2
+import random
 
 
-def generate_schedule():
-    """Esta función genera un lista de lista que representa el contenido del excel"""
-    month_days = [day for row in get_current_calendar()
-                  for day in row if day != 0]
-    month = datetime.datetime.now().strftime("%B")
-    calendar = get_current_calendar_dict()
 
-    def is_hollyday(
-        day): return day in calendar["sabado"] or day in calendar["domingo"]
+class Schedule:
+    dias_del_mes = [day for row in get_current_calendar()
+                    for day in row if day != 0]
+    mes = datetime.datetime.now().strftime("%B")
+    calendar_dict = get_current_calendar_dict()  
+    feriados = get_feriados()
+    
+    def __init__(self, trabajadores:list[Worker], funcion_comparacion: Function,reglas_dias_trabajados:dict["mañana": dict[int: dict[str:int, str: str or tuple]], "tarde": dict[int: dict[str:int, str:str or tuple]]] = {"mañana": {dia: {"cantidad":1, "tipo":"cualquiera"} for dia in dias_del_mes}, "tarde": {dia: {"cantidad":2, "tipo":("senior", "junior")} for dia in dias_del_mes}}):
+        self.trabajadores = trabajadores
+        self.funcion_comparacion = funcion_comparacion
+        self.reglas_dias_trabajados = reglas_dias_trabajados
+        self.horario = None
 
-    days_to_work = get_count_work_days(calendar)
-    days_to_work = calculate_days_to_works(days_to_work)
+    @staticmethod
+    def dia_no_trabajable(day) -> bool:
+        return day in Schedule.calendar_dict["sabado"] or day in Schedule.calendar_dict["domingo"]
 
-    print(days_to_work)
+    @staticmethod
+    def es_feriado(day) -> bool:
+        return day in Schedule.feriados
+    
+    def obtener_horario(self) -> dict:
+        if self.horario == None:
+            self.generar_horario()
+        return  self.horario
 
-    workers = data.read_data_column("data.txt", "corpo")
+    def generar_horario(self) -> dict["mañana": list[list[str]], "tarde": list[list[str]]]:
+        result = {"mañana": {}, "tarde": {}}
+        trabajadores_ordenados_por_tipo = ordenar_trabajadores(self.trabajadores)
 
-    def column(x): return [worker[x] for worker in workers]
+        def escoger_trabajadores(turno:str):
+            tipo = self.reglas_dias_trabajados[turno][dia]["tipo"]
+            cantidad = self.reglas_dias_trabajados[turno][dia]["cantidad"]
 
-    workers_name = column(0)
+            if  tipo == 'cualquiera':
+                result = random.sample(self.trabajadores, cantidad)
+            else:
+                result = [random.choice(trabajadores_ordenados_por_tipo[t]) for t in tipo]
+            return result
 
-    workers_dict = {k: [v, x] for (k, v, x) in zip(
-        workers_name, [0]*len(workers), column(-1))}
+        turno_anterior = None
+        is_primero = True
+        for index, dia in enumerate(Schedule.dias_del_mes):
+            for turno in result.keys():
+                
+                if Schedule.dia_no_trabajable(dia) or Schedule.es_feriado(dia):
+                    result[turno][dia] = [None]
+                    continue
 
-    result = list()
-    list_workers = generate_workers_of_the_day(workers_dict, days_to_work)
+                if is_primero:
+                    trabajadores_seleccionados = escoger_trabajadores(turno)
+                    is_primero = False
+                else:
+                    while True:
+                        trabajadores_seleccionados = escoger_trabajadores(turno)
+                        #print(*trabajadores_seleccionados," == " ,*result[turno][dia - 1])
+                        
+                        if result[turno][dia - 1] == None:
+                            break
+                        
+                        # print("comparando", *turno_anterior, *trabajadores_seleccionados)
+                        #if self.funcion_comparacion(trabajadores_seleccionados, result[turno][dia - 1]) and self.funcion_comparacion(turno_anterior, trabajadores_seleccionados):
+                        #    break
+                        if self.funcion_comparacion(turno_anterior, trabajadores_seleccionados):
+                            break
 
-    # El siguiente código debe ser almacenado en una funcón y reorganizado
+                
+                turno_anterior = trabajadores_seleccionados
+                result[turno][dia] = trabajadores_seleccionados
 
-    for day in month_days:
-        if is_hollyday(day):
-            result.append([f"{day}-{month[:3]}", "", "", ""])
-            continue
-        worker = list_workers.pop()
+                for trabajador in trabajadores_seleccionados:
+                    trabajador.agregar_dia_trabajado()
 
-        result.append([f"{day}-{month[:3]}", worker])
+                    if trabajador.horario_esta_completado():
+                        self.trabajadores.remove(trabajador)
+                        trabajadores_ordenados_por_tipo = ordenar_trabajadores(self.trabajadores)
+                        #print("Entramos")
+                        #print(*self.trabajadores, sep='\t')
+                
+        self.horario = result
+        return result    
+    
+    def convertir_horario_matrix(self):
+        lista = [["Mañana", "Tarde"]] 
+        
+        for dia in Schedule.dias_del_mes:
+            row = []
+            for turno in self.horario:
+                for value in self.horario[turno][dia]:
+                    row.append(value)
+            lista.append(row)
+        return lista
 
-    for row in result:
-        if row[1] == '':
-            continue
-        worker = list_workers.pop()
-        contador = 0
-        while workers_dict[worker][-1] == "junior" and contador < 10:
-            list_workers.append(worker)
-            random.shuffle(list_workers)
-            worker = list_workers.pop()
-            contador += 1
+class CompactSchedule:
+    def __init__(self):
+        pass
 
-        row.append(worker)
+    def generar_schedule(content: list[list[str]]):
+        pass
 
-    for row in result:
-        if row[1] == '':
-            continue
-
-        worker = list_workers.pop()
-
-        row.append(worker)
-
-    return result
-
+    def generar_contenido_horario(lista_funciones_generadoras_horarios:list, nombre_empresa:str):
+        pass
 
 if __name__ == "__main__":
-    #print(*get_current_calendar_dict()["miercoles"], sep='\n')
-    print(*generate_schedule(), sep='\n')
-    ab: str = 'adverb'
-    sum(i for i in range(10) if i % 2 == 0)
-    list1 = ["yellow", "gray", "brown"]
-    list2 = list1[:]  # create a copie using slicing
+    trabajadores = cargar_trabajadores("data.csv")
+    
+    corpo = extraer_lista_trabajadores_tipo(trabajadores, "corporativa")
+
+    horario_corpo = Schedule(corpo, listas_diferentes2)
+    result = horario_corpo.generar_horario()
+ 
+    # for dia, trabajadores in mañana.items():
+    #     print(dia)
+    #     for trabajador in trabajadores:
+    #         print(trabajador)
+    # print()
+    # for dia, trabajadores in tarde.items():
+    #     print(dia)
+    #     for trabajador in trabajadores:
+    #         print(trabajador)
+    matriz = horario_corpo.convertir_horario_matrix()
+ 
+
+    for row in matriz:
+        for worker in row:
+            dias = worker
+            try:
+                print(f"{dias.nombre} {dias.dias_trabajados}", end= ';')
+            except:
+                print(dias, end=";")
+
+        
+        print()
