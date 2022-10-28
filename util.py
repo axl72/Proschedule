@@ -64,6 +64,21 @@ def generate_workers_of_the_day(workers_dict, days_to_work):
     workers_dict[worker_of_the_day][0] += 1
     return worker_of_the_day
 
+def get_feriados() -> list:
+    return []
+
+def listas_diferentes(lista1:list, lista2:list) -> bool:
+    for valor1 in lista1:
+        if valor1 in lista2:
+            return False
+    return True
+
+def listas_diferentes2(lista1: list, lista2: list) -> bool:
+    for valor1 in lista1:
+        if valor1 != lista2[0]:
+            return True
+    return False
+
 
 if __name__ == "__main__":
     hola = {"juana": 1, "sergio": 2}
