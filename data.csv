@@ -1,20 +1,20 @@
-trabajor;tipo_empresa;tipo_puesto;dias_trabajar
-Ricardo V.;corporativa;senior;12
-Betsy;corporativa;senior;12
-Marco;corporativa;senior;12
-Linette L.;corporativa;junior;28
-Maria Gracia;empresa;senior;0
-Sandra W.;empresa;senior;0
-Daniela L.;empresa;senior;0
-Martin G.;empresa;senior;0
-Angeline H.;empresa;senior;0
-Claudia G.;empresa;senior;0
-Lorena;empresa;senior;0
-Paolo P.;empresa;senior;0
-Nicole;empresa;junior;0
-Madelaine;empresa;junior;0
-Alonso;empresa;junior;0
-Diego;empresa;junior;0
-Alejandra V.;negocios;senior;0
-Cecilia;negocios;senior;0
-Claudia C.;negocios;senior;0
+trabajor;tipo_empresa;tipo_puesto
+Ricardo V.;corporativa;senior
+Betsy;corporativa;senior
+Marco;corporativa;senior
+Linette L.;corporativa;junior
+Maria Gracia;empresa;senior
+Sandra W.;empresa;senior
+Daniela L.;empresa;senior
+Martin G.;empresa;senior
+Angeline H.;empresa;senior
+Claudia G.;empresa;senior
+Lorena;empresa;senior
+Paolo P.;empresa;senior
+Nicole;empresa;junior
+Madelaine;empresa;junior
+Alonso;empresa;junior
+Diego;empresa;junior
+Alejandra V.;negocios;senior
+Cecilia;negocios;senior
+Claudia C.;negocios;senior
